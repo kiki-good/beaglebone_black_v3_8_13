@@ -1,0 +1,35 @@
+Fix following errors:
+
+1.
+drivers/built-in.o: In function `lsm303dlhc_mag_input_cleanup':
+/home/jqiao/Desktop/Porting/official_3.8.13_kernel_Beaglebone-Black/linux-3.8/drivers/input/misc/lsm303dlhc_mag.c:896: undefined reference to `input_unregister_polled_device'
+/home/jqiao/Desktop/Porting/official_3.8.13_kernel_Beaglebone-Black/linux-3.8/drivers/input/misc/lsm303dlhc_mag.c:897: undefined reference to `input_free_polled_device'
+drivers/built-in.o: In function `lsm303dlhc_mag_input_init':
+/home/jqiao/Desktop/Porting/official_3.8.13_kernel_Beaglebone-Black/linux-3.8/drivers/input/misc/lsm303dlhc_mag.c:849: undefined reference to `input_allocate_polled_device'
+/home/jqiao/Desktop/Porting/official_3.8.13_kernel_Beaglebone-Black/linux-3.8/drivers/input/misc/lsm303dlhc_mag.c:878: undefined reference to `input_register_polled_device'
+/home/jqiao/Desktop/Porting/official_3.8.13_kernel_Beaglebone-Black/linux-3.8/drivers/input/misc/lsm303dlhc_mag.c:889: undefined reference to `input_free_polled_device'
+drivers/built-in.o: In function `lsm303dlhc_mag_input_cleanup':
+/home/jqiao/Desktop/Porting/official_3.8.13_kernel_Beaglebone-Black/linux-3.8/drivers/input/misc/lsm303dlhc_mag.c:896: undefined reference to `input_unregister_polled_device'
+/home/jqiao/Desktop/Porting/official_3.8.13_kernel_Beaglebone-Black/linux-3.8/drivers/input/misc/lsm303dlhc_mag.c:897: undefined reference to `input_free_polled_device'
+Makefile:781: recipe for target 'vmlinux' failed
+
+
+2. 
+drivers/pwm/pwm-tiehrpwm.c: In function 'ehrpwm_pwm_config':
+drivers/pwm/pwm-tiehrpwm.c:258:18: error: 'struct pwm_device' has no member named 'duty'
+     if (pwm_alter->duty > period_ns) {
+                  ^
+drivers/pwm/pwm-tiehrpwm.c:275:53: error: 'struct pwm_device' has no member named 'duty'
+     if (ehrpwm_pwm_config(chip, pwm_alter, pwm_alter->duty, period_ns)) {
+                                                     ^
+scripts/Makefile.build:307: recipe for target 'drivers/pwm/pwm-tiehrpwm.o' failed
+
+3.
+drivers/i2c/i2c-core.o: In function `of_free_overlay_info':
+i2c-core.c:(.text+0x27b8): multiple definition of `of_free_overlay_info'
+drivers/i2c/i2c-boardinfo.o:i2c-boardinfo.c:(.text+0x0): first defined here
+scripts/Makefile.build:386: recipe for target 'drivers/i2c/built-in.o' failed
+make[2]: *** [drivers/i2c/built-in.o] Error 1
+scripts/Makefile.build:454: recipe for target 'drivers/i2c' failed
+make[1]: *** [drivers/i2c] Error 2
+Makefile:795: recipe for target 'drivers' failed
