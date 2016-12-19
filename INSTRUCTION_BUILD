@@ -1,0 +1,66 @@
+Linux and u-boot sources
+
+The Linux kernel sources for the BeagleBoard, BeagleBoard-xM and BeagleBone are maintained on Github.com/BeagleBoard. The U-Boot bootloader sources maintained as part of the U-Boot mainline on git.denx.de.
+
+The production and validation of these kernels is done with the Angstrom Distribution and meta-beagleboard with the OpenEmbedded build system. The sources shared here are done for convenience for those familiar with the git version control system.
+
+For instructions on building for the Debian system (armhf) using an Ubuntu 12.04 host system, see this blog post.
+
+Example for installing toolchain
+~$ wget http://www.angstrom-distribution.org/toolchains/angstrom-2011.03-x86_64-linux-armv7a-linux-gnueabi-toolchain-qte-4.6.3.tar.bz2
+~$ sudo tar -C / -xjf angstrom-2011.03-x86_64-linux-armv7a-linux-gnueabi-toolchain-qte-4.6.3.tar.bz2
+~$ export PATH=/usr/local/angstrom/arm/bin:$PATH
+ 
+Example build procedure for BeagleBone MLO and u-boot
+~$ git clone git://git.denx.de/u-boot.git && cd u-boot
+~/u-boot$ CROSS_COMPILE=arm-angstrom-linux-gnueabi- make am335x_evm
+ 
+Example build procedure for BeagleBone 3.8-rcX kernel
+~$ git clone git://github.com/beagleboard/kernel.git && cd kernel
+~/kernel$ git checkout 3.8
+~/kernel$ ./patch.sh
+~/kernel$ cp configs/beaglebone kernel/arch/arm/configs/beaglebone_defconfig
+~/kernel$ wget http://arago-project.org/git/projects/?p=am33x-cm3.git\;a=blob_plain\;f=bin/am335x-pm-firmware.bin\;hb=HEAD -O kernel/firmware/am335x-pm-firmware.bin
+~/kernel$ cd kernel
+~/kernel/kernel$ mkdir rootfs
+~/kernel/kernel$ make ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- beaglebone_defconfig
+~/kernel/kernel$ make ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- -j4 uImage dtbs
+~/kernel/kernel$ make ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- -j4 modules
+~/kernel/kernel$ make ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- INSTALL_MOD_PATH=$HOME/kernel/kernel/rootfs modules_install
+~/kernel/kernel$ make ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- uImage-dtb.am335x-bone
+~/kernel/kernel$ make ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- uImage-dtb.am335x-boneblack
+ 
+Building a kernel module
+I applied this patch and that provided the following files:
+
+~/kernel/kernel/hello/hello.c
+#include        /* Needed by all modules */
+#include        /* Needed for KERN_INFO */
+#include          /* Needed for the macros */
+
+static int __init hello_start(void)
+{
+    printk(KERN_INFO "Loading hello module...\n");
+    printk(KERN_INFO "Hello world\n");
+    return 0;
+}
+
+static void __exit hello_end(void)
+{
+    printk(KERN_INFO "Goodbye Mr.\n");
+}
+
+module_init(hello_start);
+module_exit(hello_end);
+ 
+~/kernel/kernel/hello/Makefile
+obj-m := hello.o
+
+PWD   := $(shell pwd)
+KDIR  := ${PWD}/..
+
+default:
+    make -C $(KDIR) SUBDIRS=$(PWD) modules
+ 
+~/kernel/kernel$ cd hello
+~/kernel/kernel/hello$ make ARCH=arm CROSS_COMPILE=arm-angstrom-linux-gnueabi- 
