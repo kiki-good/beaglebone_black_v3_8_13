@@ -1,0 +1,56 @@
+1.Compile:
+
+Under "original_beaglebone_code" directory
+
+export PATH=/home/jqiao/Desktop/beaglebone_black_project/beaglebone-toolchain/gcc-arm-none-eabi-6-2017-q1-update/bin:$PATH
+
+make ARCH=arm CROSS_COMPILE=arm-none-eabi- uImage
+
+and find dtb file "am335x-boneblack.dtb" under arm/boot/dts
+
+or
+
+Under "beaglebone-official-3.8.13" directory 
+
+and follow the instruction under "http://beagleboard.org/linux" to
+
+get kernel source
+
+and then do the following (Note:GCC must be less or equal to 4.x)
+
+make ARCH=arm CROSS_COMPILE=/home/jqiao/Desktop/beaglebone_black_project/beaglebone-toolchain_old/gcc-arm-none-eabi-4_8-2014q2/bin/arm-none-eabi- beaglebone_defconfig
+
+make ARCH=arm CROSS_COMPILE=/home/jqiao/Desktop/beaglebone_black_project/beaglebone-toolchain_old/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabi/bin/arm-linux-gnueabi- uImage
+
+make ARCH=arm CROSS_COMPILE=/home/jqiao/Desktop/beaglebone_black_project/beaglebone-toolchain_old/gcc-linaro-4.9-2016.02-x86_64_arm-linux-gnueabi/bin/arm-linux-gnueabi- uImage-dtb.am335x-boneblack
+
+
+
+1. Boot Command:
+
+0x80608000 also works to replace 0x80007fc0
+
+Explain Load address & Uboot parameter address(Here:0x80007fc0):
+http://stackoverflow.com/questions/28128321/understanding-linux-load-address-for-u-boot-process
+
+setenv autoload  0            
+setenv ipaddr 192.168.0.14
+setenv serverip 192.168.0.14
+setenv bootargs console=ttyO0,115200n8
+dhcp
+tftp 0x80007fc0 uImage
+tftp 0x80f80000 am335x-boneblack.dtb
+bootm 0x80007fc0 - 0x80f80000
+
+or
+
+setenv autoload  0            
+setenv ipaddr 192.168.0.14
+setenv serverip 192.168.0.14
+setenv bootargs console=ttyO0,115200n8
+dhcp
+tftp 0x80007fc0 uImage-dtb.am335x-boneblack
+bootm 0x80007fc0
+
+
+
